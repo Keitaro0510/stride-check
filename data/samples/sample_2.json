@@ -1,0 +1,54 @@
+{
+ "video": {
+  "rear": null,
+  "side": null,
+  "note": "サンプル：研究データのランナー（Fukuchi ほか 2017、CC BY 4.0）。マーカーを2Dに投影して計算した値を、時速10kmに内挿",
+  "sample_id": 2
+ },
+ "subject": {
+  "speed_kmh": 10.0,
+  "height_cm": 169.0,
+  "mass_kg": 64.75,
+  "sex": "M"
+ },
+ "rhythm": {
+  "cadence_spm": 176.37999199279352,
+  "contact_s": 0.2452314814814815,
+  "flight_s": 0.09620370370370365,
+  "duty": 0.718142856488938,
+  "foot_strike": "non_rearfoot",
+  "alt_strike": false,
+  "cadence_asym_pct": null,
+  "duty_asym_pct": null,
+  "pelvis_vertical_osc_mm": 76.72088093320467
+ },
+ "legs": {
+  "L": {
+   "CPD": 3.368914882929365,
+   "HADD": 83.659041742132,
+   "KA": 5.391726060246566,
+   "KF": 38.82836821773794,
+   "knee_flex_contact": 6.363570196390387,
+   "shank_angle_contact": -8.73232813369495,
+   "foot_angle_contact": 5.473501124633699,
+   "overstride": 0.11055996965353959,
+   "n_steps": 43
+  },
+  "R": {
+   "CPD": 4.135607152340363,
+   "HADD": 84.80239134584468,
+   "KA": 6.832244987332599,
+   "KF": 32.33630986847228,
+   "knee_flex_contact": 7.010328650191825,
+   "shank_angle_contact": -9.670951231540746,
+   "foot_angle_contact": 4.1266650158095555,
+   "overstride": 0.13462492471509496,
+   "n_steps": 44
+  }
+ },
+ "quality": {
+  "step_sd": null,
+  "low_confidence_frames_pct": null,
+  "notes": []
+ }
+}
