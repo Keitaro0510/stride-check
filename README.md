@@ -5,7 +5,7 @@ Prototype from BioHackathon 2026. It shows running-style types, a form-based inj
 **Live page:** https://keitaro0510.github.io/stride-check/
 
 - Everything runs in the browser. Nothing you load is sent anywhere.
-- Video analysis (`extract/`) is in development. For now, the page shows three sample runners and can load a `measures.json` file.
+- Video analysis (`extract/`) runs MediaPipe Pose Landmarker locally in the browser. Videos are not uploaded. It is an experimental measurement feature and is not medical advice.
 - The injury prediction is weak (AUC 0.64, 95% CI 0.52–0.76) and is not medical advice.
 
 ## Files
@@ -16,7 +16,7 @@ Prototype from BioHackathon 2026. It shows running-style types, a form-based inj
 | `i18n.js` | Text in English and Japanese |
 | `data/app_data.js` | Type cut-offs, prediction and load model coefficients, reference distributions, samples |
 | `data/samples/` | Sample `measures.json` files |
-| `extract/` | Video → `measures.json` (placeholder; see `extract/README.md`) |
+| `extract/` | Browser-only video → `measures.json` (MediaPipe Pose Landmarker) |
 | `docs/video_measurement_spec.md` | Measurement definitions and requirements (Japanese) |
 
 ## Data sources
