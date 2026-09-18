@@ -161,11 +161,25 @@
     return landmarkerPromise;
   }
   function waitEvent(target, type) { return new Promise((resolve, reject) => {
-    const okHandler = () => { cleanup(); resolve(); }, fail = () => { cleanup(); reject(new Error("Could not read the selected video.")); };
+    const okHandler = () => { cleanup(); resolve(); }, fail = () => {
+      cleanup();
+      const code = target.error && target.error.code;
+      const detail = ({ 1: "the file was aborted", 2: "a network error occurred", 3: "the video codec is not supported or the file is corrupt", 4: "the browser does not support this video format" })[code] || "the browser could not decode it";
+      reject(new Error("Could not read the selected video: " + detail + ". Use an H.264/AVC MP4 (avc1) with AAC audio."));
+    };
     const cleanup = () => { target.removeEventListener(type, okHandler); target.removeEventListener("error", fail); };
     target.addEventListener(type, okHandler, { once: true }); target.addEventListener("error", fail, { once: true });
   }); }
+  async function rejectUnsupportedMp4v(file) {
+    // The supplied reference clips are MPEG-4 Part 2 (mp4v).  Chrome does not
+    // generally decode that codec, even though its file extension is .mp4.
+    const size = Math.min(file.size, 256 * 1024);
+    const chunks = await Promise.all([file.slice(0, size).arrayBuffer(), file.slice(Math.max(0, file.size - size)).arrayBuffer()]);
+    const text = new TextDecoder("latin1").decode(new Uint8Array(chunks[0])) + new TextDecoder("latin1").decode(new Uint8Array(chunks[1]));
+    if (text.includes("mp4v")) throw new Error("This MP4 uses MPEG-4 Part 2 (mp4v), which Chrome cannot analyse. Re-encode it as H.264/AVC (avc1) MP4, then select the converted file.");
+  }
   async function openVideo(file) {
+    await rejectUnsupportedMp4v(file);
     const video = document.createElement("video");
     video.muted = true; video.playsInline = true; video.preload = "auto";
     const url = URL.createObjectURL(file); video.src = url;
