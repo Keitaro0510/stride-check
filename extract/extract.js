@@ -139,9 +139,10 @@
       shank_angle_contact: null, foot_angle_contact: null, overstride: null, n_steps: 0 };
   }
   async function importVision() {
-    // Bundlers cannot rewrite a runtime URL.  Keeping it explicit also makes
-    // self-hosting possible through configure().
-    return import(config.assetBaseUrl + "/+esm");
+    // This is the package's browser module entry point.  Do not use
+    // jsDelivr's /+esm conversion endpoint here: it does not reliably expose
+    // MediaPipe's WASM-aware package entry on all browsers.
+    return import(config.assetBaseUrl);
   }
   async function getLandmarker() {
     if (!landmarkerPromise) landmarkerPromise = (async () => {
