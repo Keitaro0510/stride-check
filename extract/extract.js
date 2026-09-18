@@ -10,7 +10,9 @@
   "use strict";
 
   const VERSION = "mediapipe-pose-browser-0.1.0";
-  const MP_VERSION = "0.10.22";
+  // 0.10.22 was never published to npm.  Pin the currently published
+  // stable package so the CDN URL is a real, cacheable asset.
+  const MP_VERSION = "1.0.1";
   const DEFAULT_ASSET_BASE = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@" + MP_VERSION;
   const DEFAULT_MODEL_URL = "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task";
   const ANALYSIS_FPS = 60;
