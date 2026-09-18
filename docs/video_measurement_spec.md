@@ -142,6 +142,7 @@ const measures = await extractMeasures(
 - `measures.json` に次の2つを追加してください（結果の比較と、提供されたデータの管理に使います）
   - `video.fps_source`：`video.fps_rear`・`video.fps_side`（実際に使った fps）の決め方。`"metadata"`＝ファイルの情報から読んだ、`"user"`＝ユーザーが選んだ
   - `model`：`{"pose": "姿勢推定モデルの名前とバージョン", "extractor": "このコードのバージョン"}`
+  - `video.frontal_view`：`video.rear` の動画を撮った向き。`"rear"`＝後方から、`"front"`＝前方から（前方の動画は後方の定義に合わせて左右を読み替える。いまの計算では `KA` の向きだけが変わる）
 - Node.js かヘッドレスブラウザでも動かせる形にしてください（自動テストに使います）
 
 ### 7-2. モデルは「ブラウザで動く形式」で作る

@@ -201,6 +201,25 @@ td.name small{display:block;color:var(--ink-3);font-size:11.5px;letter-spacing:.
 .src-switch .seg button{white-space:nowrap}
 .file-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px}
 .file-row[hidden]{display:none}
+.pose-check{margin:0 0 16px;padding:12px;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+.pose-check[hidden],.vid-opt[hidden]{display:none}
+.pc-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.pc-head h3{margin:0;font-size:15px;font-weight:600}
+.pc-stage{position:relative;max-width:760px;margin:8px 0 4px;background:#000;line-height:0}
+.pc-stage video{display:block;width:100%;height:auto}
+.pc-stage canvas{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.pc-event{position:absolute;left:8px;top:8px;background:var(--surface);color:var(--ink);font-size:13px;font-weight:600;padding:2px 8px;border-radius:3px;line-height:1.5}
+.pc-event:empty{display:none}
+.pc-strip{display:block;width:100%;max-width:760px;height:40px;margin:0 0 6px}
+.pc-ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;max-width:760px}
+.pc-ctrl input[type=range]{flex:1 1 160px;accent-color:var(--accent)}
+.pc-legend{margin:6px 0 0}
+.sw{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 4px 0 10px;vertical-align:-1px}
+.sw:first-child{margin-left:0}
+.sw-l{background:var(--c1)}.sw-r{background:var(--c2)}
+.vid-opt{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2)}
+.vid-opt select{font:inherit;font-size:14px;font-weight:500;padding:4px 6px;border:0;border-bottom:1.5px solid var(--ink-3);border-radius:0;background:var(--surface-2);color:var(--ink)}
+.vid-opt select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .btn-sub{font:inherit;font-size:13px;font-weight:500;border:1.5px solid var(--ink);border-radius:3px;background:var(--surface);color:var(--ink);padding:5px 12px;cursor:pointer}
 .btn-sub:hover{background:var(--surface-2)}
 .btn-sub:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -267,12 +286,35 @@ td .flag{display:inline-block;font-size:10.5px;color:var(--crit);background:var(
           <p class="err" id="file-err" role="alert"></p>
         </div>
         <div class="file-row" id="video-row" hidden>
-          <label class="btn-sub" for="vid-rear"><span data-i18n="vid_rear"></span><input type="file" id="vid-rear" accept="video/*" hidden></label>
+          <label class="vid-opt" for="vid-view"><span data-i18n="vid_view"></span><select id="vid-view"><option value="rear" data-i18n="vid_view_rear"></option><option value="front" data-i18n="vid_view_front"></option></select></label>
+          <label class="btn-sub" for="vid-rear"><span id="vid-rear-label"></span><input type="file" id="vid-rear" accept="video/*" hidden></label>
           <label class="btn-sub" for="vid-side"><span data-i18n="vid_side"></span><input type="file" id="vid-side" accept="video/*" hidden></label>
+          <label class="vid-opt" for="vid-fps"><span data-i18n="vid_fps"></span><select id="vid-fps"><option value="" data-i18n="vid_fps_auto"></option><option value="30">30</option><option value="60">60</option><option value="120">120</option><option value="240">240</option></select></label>
           <button type="button" class="btn-sub" id="vid-run" data-i18n="vid_run"></button>
           <span class="note" id="vid-files"></span>
           <p class="note" id="vid-status" aria-live="polite" style="margin:0;width:100%"></p>
         </div>
+        <section class="pose-check" id="pose-check" hidden>
+          <div class="pc-head">
+            <h3 data-i18n="pc_title"></h3>
+            <div class="seg" role="group" id="pc-view" data-i18n-aria="pc_view_aria">
+              <button type="button" data-v="side" aria-pressed="true" data-i18n="pc_side"></button>
+              <button type="button" data-v="frontal" aria-pressed="false" id="pc-frontal-btn"></button>
+            </div>
+          </div>
+          <p class="note" data-i18n="pc_note"></p>
+          <label class="vid-opt" id="pc-raw-row"><input type="checkbox" id="pc-raw"><span data-i18n="pc_raw"></span></label>
+          <div class="pc-stage"><video id="pc-video" muted playsinline preload="auto"></video><canvas id="pc-canvas"></canvas><span class="pc-event" id="pc-event"></span></div>
+          <canvas class="pc-strip" id="pc-strip" aria-hidden="true"></canvas>
+          <div class="pc-ctrl">
+            <button type="button" class="btn-sub" id="pc-prev" data-i18n="pc_prev"></button>
+            <button type="button" class="btn-sub" id="pc-play"></button>
+            <button type="button" class="btn-sub" id="pc-next" data-i18n="pc_next"></button>
+            <input type="range" id="pc-seek" min="0" max="0" step="1" value="0" data-i18n-aria="pc_seek">
+            <span class="note" id="pc-frame"></span>
+          </div>
+          <p class="note pc-legend"><span class="sw sw-l"></span><span data-i18n="pc_left"></span><span class="sw sw-r"></span><span data-i18n="pc_right"></span><span data-i18n="pc_strip"></span></p>
+        </section>
         <dl class="meta">
           <dt data-i18n="meta_data"></dt><dd id="meta-src"></dd>
           <dt data-i18n="meta_steps"></dt><dd id="meta-steps"></dd>
@@ -491,16 +533,29 @@ td .flag{display:inline-block;font-size:10.5px;color:var(--crit);background:var(
     e.target.value = "";
   });
   /* ---------- 動画から値を出す（公開版の Web サイトだけ。extract/extract.js が StrideExtract を用意する） ---------- */
-  const videos = {rear: null, side: null};
+  const videos = {rear: null, side: null}, probes = {rear: null, side: null};
   function videoRow(){
     const X = window.StrideExtract;
     if (!X) return;
-    const names = ["rear", "side"].filter(k => videos[k]).map(k => `${t(k === "rear" ? "vid_rear" : "vid_side")}: ${videos[k].name}`);
+    // 動画を選んだ時点でファイルから読んだ fps を見せる（読めなければ fps を選んでもらう）
+    const fpsTag = k => probes[k] === undefined ? "" : probes[k] ? ` (${t("vid_fps_file", {fps: Math.round(probes[k].fps * 100) / 100})})` : ` (${t("vid_fps_unknown")})`;
+    // 前後の動画は後方・前方のどちらから撮ったものでもよい（前方なら extract.js が KA の向きを直す）
+    const frontal = $("#vid-view").value === "front" ? "vid_front" : "vid_rear";
+    $("#vid-rear-label").textContent = t(frontal);
+    const names = ["rear", "side"].filter(k => videos[k]).map(k => `${t(k === "rear" ? frontal : "vid_side")}: ${videos[k].name}${fpsTag(k)}`);
     $("#vid-files").textContent = names.join(" ／ ");
     $("#vid-run").disabled = !X.available || !(videos.rear || videos.side);
     if (!X.available) $("#vid-status").textContent = t("vid_unavailable");
+    pcLabels();
   }
-  ["rear", "side"].forEach(k => $("#vid-" + k).addEventListener("change", e => { videos[k] = (e.target.files && e.target.files[0]) || null; $("#vid-status").textContent = ""; videoRow(); }));
+  $("#vid-view").addEventListener("change", videoRow);
+  ["rear", "side"].forEach(k => $("#vid-" + k).addEventListener("change", async e => {
+    const f = (e.target.files && e.target.files[0]) || null;
+    videos[k] = f; probes[k] = undefined; $("#vid-status").textContent = ""; pcHide(); videoRow();
+    if (!f || !window.StrideExtract || !window.StrideExtract.probeVideo) return;
+    const info = await window.StrideExtract.probeVideo(f);
+    if (videos[k] === f) { probes[k] = info; videoRow(); }
+  }));
   $("#vid-run").addEventListener("click", async () => {
     const X = window.StrideExtract;
     if (!X || !X.available) return;
@@ -508,14 +563,126 @@ td .flag{display:inline-block;font-size:10.5px;color:var(--crit);background:var(
     const subject = {speed_kmh: num("#in-speed"), height_cm: num("#in-height"), mass_kg: num("#in-mass"), sex: $("#in-sex").value || null};
     $("#vid-run").disabled = true;
     try {
-      const out = await X.extractMeasures(videos, subject, {onProgress: (p, msg) => { $("#vid-status").textContent = t("vid_progress", {p: Math.round(p * 100), msg: msg || ""}); }});
+      const out = await X.extractMeasures(videos, subject, {fps: num("#vid-fps"), frontalView: $("#vid-view").value, onProgress: (p, msg) => { $("#vid-status").textContent = t("vid_progress", {p: Math.round(p * 100), msg: msg || ""}); }});
       fileMeasures = normalize(out); fileName = t("vid_result_name"); setSource("file");
+      pcShow(out);
       const notes = (fileMeasures.quality && fileMeasures.quality.notes) || [];
-      $("#vid-status").textContent = t("vid_done") + (notes.length ? " " + notes.join(" / ") : "");
+      const v = out.video || {}, fpsTxt = x => isNum(x) ? String(Math.round(x * 100) / 100) : "—";
+      const used = t("vid_fps_used", {side: fpsTxt(v.fps_side), rear: v.rear ? fpsTxt(v.fps_rear) : null, front: v.frontal_view === "front", src: t("vid_src_" + (v.fps_source || "none"))});
+      $("#vid-status").textContent = t("vid_done") + " " + used + (notes.length ? " " + notes.join(" / ") : "");
     } catch (err) {
       $("#vid-status").textContent = t("vid_error") + err.message;
     } finally { videoRow(); }
   });
+
+  /* ---------- 姿勢推定の確認：動画に推定した関節の点を重ねて、目で確かめる ---------- */
+  // MediaPipe Pose の点の番号。奇数 = 左、偶数 = 右
+  const PC_BONES = [[11,12],[23,24],[11,23],[12,24],[11,13],[13,15],[12,14],[14,16],[23,25],[25,27],[27,29],[29,31],[27,31],[24,26],[26,28],[28,30],[30,32],[28,32]];
+  const PC_POINTS = [0,11,12,13,14,15,16,23,24,25,26,27,28,29,30,31,32];
+  const PC = {ov: null, urls: {}, view: "side", playing: false};
+  const pcVideo = () => $("#pc-video");
+  // 側方は、左右の脚を追跡し直した点（frames）と、姿勢推定そのままの点（raw）を切り替えられる
+  const pcClip = () => { if (!PC.ov) return null; const c = PC.view === "frontal" ? PC.ov.frontal : PC.ov.side; return $("#pc-raw").checked && c.raw ? Object.assign({}, c, {frames: c.raw}) : c; };
+  const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  function pcLabels(){
+    const fr = PC.ov && PC.ov.frontal;
+    $("#pc-frontal-btn").hidden = !fr;
+    $("#pc-raw-row").hidden = PC.view !== "side";
+    $("#pc-frontal-btn").textContent = t(fr && fr.view === "front" ? "pc_front" : "pc_rear");
+    $("#pc-play").textContent = t(PC.playing ? "pc_pause" : "pc_play");
+    if (PC.ov) pcDraw();
+  }
+  function pcHide(){
+    const v = pcVideo(); v.pause(); v.removeAttribute("src"); v.load();
+    Object.values(PC.urls).forEach(u => URL.revokeObjectURL(u));
+    PC.urls = {}; PC.ov = null; $("#pose-check").hidden = true;
+  }
+  function pcShow(out){
+    pcHide();
+    if (!out || !out.overlay || !videos.side) return;
+    PC.ov = out.overlay;
+    PC.urls.side = URL.createObjectURL(videos.side);
+    if (PC.ov.frontal && videos.rear) PC.urls.frontal = URL.createObjectURL(videos.rear);
+    $("#pose-check").hidden = false;
+    pcSetView("side");
+  }
+  function pcSetView(v){
+    if (v === "frontal" && !PC.urls.frontal) v = "side";
+    PC.view = v;
+    document.querySelectorAll("#pc-view button").forEach(b => b.setAttribute("aria-pressed", b.dataset.v === v));
+    const vid = pcVideo(), c = pcClip();
+    vid.pause(); vid.src = PC.urls[v];
+    $("#pc-seek").max = String(c.frames.length - 1); $("#pc-seek").value = "0";
+    vid.addEventListener("loadeddata", () => pcGo(0), {once: true});
+    pcLabels();
+  }
+  function pcIndex(){ const c = pcClip(); return Math.max(0, Math.min(c.frames.length - 1, Math.floor(pcVideo().currentTime * c.fps + 1e-6))); }
+  function pcGo(i){ const c = pcClip(); if (!c) return; i = Math.max(0, Math.min(c.frames.length - 1, i)); pcVideo().currentTime = (i + .5) / c.fps; }
+  function pcDraw(){
+    const c = pcClip(), vid = pcVideo(), cv = $("#pc-canvas");
+    if (!c || !vid.videoWidth) return;
+    const i = pcIndex(), f = c.frames[i], dpr = window.devicePixelRatio || 1;
+    const W = vid.clientWidth, H = vid.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+    const col = {L: cssVar("--c1"), R: cssVar("--c2"), C: "#FFFFFF"}, side = k => k === 0 ? "C" : k % 2 ? "L" : "R";
+    const P = k => f && f[k] ? {x: f[k][0] * W, y: f[k][1] * H, v: f[k][2]} : null;
+    if (f) {
+      g.lineWidth = 3; g.lineCap = "round";
+      for (const [a, b] of PC_BONES) {
+        const p = P(a), q = P(b); if (!p || !q) continue;
+        g.strokeStyle = side(a) === side(b) ? col[side(a)] : col.C; g.globalAlpha = Math.min(p.v, q.v) < .5 ? .45 : 1;
+        g.beginPath(); g.moveTo(p.x, p.y); g.lineTo(q.x, q.y); g.stroke();
+      }
+      g.globalAlpha = 1;
+      for (const k of PC_POINTS) {
+        const p = P(k); if (!p) continue;
+        g.beginPath(); g.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+        // 見えている確信が低い点は中を抜く
+        if (p.v >= .5) { g.fillStyle = col[side(k)]; g.fill(); }
+        g.lineWidth = 1.5; g.strokeStyle = p.v >= .5 ? "#FFFFFF" : col[side(k)]; g.stroke();
+      }
+    }
+    // 接地・離地のコマ（側方の時刻。前後の動画は同時に始まった前提）
+    const t0 = i / c.fps, t1 = (i + 1) / c.fps, ev = [];
+    for (const s of PC.ov.steps) {
+      if (s.contact >= t0 && s.contact < t1) ev.push(t(s.leg === "L" ? "pc_left" : "pc_right") + " " + t("pc_contact"));
+      if (s.off >= t0 && s.off < t1) ev.push(t(s.leg === "L" ? "pc_left" : "pc_right") + " " + t("pc_off"));
+    }
+    $("#pc-event").textContent = f ? ev.join(" ・ ") : t("pc_nopose");
+    $("#pc-seek").value = String(i);
+    $("#pc-frame").textContent = t("pc_frame", {i: i + 1, n: c.frames.length, s: (i / c.fps).toFixed(2), fps: Math.round(c.fps * 100) / 100});
+    pcStrip(c, i, col);
+  }
+  function pcStrip(c, i, col){
+    const cv = $("#pc-strip"), dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+    const dur = c.frames.length / c.fps, x = s => s / dur * W, row = (H - 6) / 2;
+    g.fillStyle = cssVar("--surface-2"); g.fillRect(0, 0, W, H);
+    for (const s of PC.ov.steps) {
+      g.fillStyle = col[s.leg];
+      g.fillRect(x(s.contact), s.leg === "L" ? 2 : row + 4, Math.max(1, x(s.off) - x(s.contact)), row);
+    }
+    g.fillStyle = cssVar("--ink"); g.fillRect(x((i + .5) / c.fps) - 1, 0, 2, H);
+  }
+  function pcLoop(){
+    if (!PC.playing) return;
+    const c = pcClip(), vid = pcVideo();
+    if (vid.currentTime >= c.frames.length / c.fps) { vid.pause(); return; }
+    pcDraw();
+    if (vid.requestVideoFrameCallback) vid.requestVideoFrameCallback(pcLoop); else requestAnimationFrame(pcLoop);
+  }
+  pcVideo().addEventListener("seeked", pcDraw);
+  pcVideo().addEventListener("play", () => { PC.playing = true; pcLabels(); pcLoop(); });
+  pcVideo().addEventListener("pause", () => { PC.playing = false; pcLabels(); });
+  $("#pc-play").addEventListener("click", () => { const v = pcVideo(); if (v.paused) { if (pcIndex() >= pcClip().frames.length - 1) pcGo(0); v.play(); } else v.pause(); });
+  $("#pc-prev").addEventListener("click", () => { pcVideo().pause(); pcGo(pcIndex() - 1); });
+  $("#pc-next").addEventListener("click", () => { pcVideo().pause(); pcGo(pcIndex() + 1); });
+  $("#pc-seek").addEventListener("input", e => { pcVideo().pause(); pcGo(+e.target.value); });
+  document.querySelectorAll("#pc-view button").forEach(b => b.addEventListener("click", () => pcSetView(b.dataset.v)));
+  window.addEventListener("resize", () => { if (PC.ov) pcDraw(); });
+  $("#pc-raw").addEventListener("change", pcDraw);
 
   function fillInputs(){
     const s = measures ? measures.subject : {};
@@ -620,9 +787,11 @@ td .flag{display:inline-block;font-size:10.5px;color:var(--crit);background:var(
     const legsHtml = ["L","R"].filter(s => result && result.legs[s]).map(s => {
       const l = result.legs[s], ty = l.type;
       if (!ty) return `<div class="type-card"><span class="sw" style="background:var(--line)"></span><div><span class="who">${legName(s)}</span><b>${t("cannot_judge")}</b><p>${t("ftype_missing")}</p></div></div>`;
-      const near = [ty.near_boundary.CPD ? "CPD" : null, ty.near_boundary.KF ? "KF" : null].filter(Boolean);
+      // KF を中央値で補ったときは、KF の軸は判定していない（区切りちょうどになる）
+      const kfImp = (l.imputed || []).includes("KF");
+      const near = [ty.near_boundary.CPD ? "CPD" : null, ty.near_boundary.KF && !kfImp ? "KF" : null].filter(Boolean);
       return `<div class="type-card"><span class="sw" style="background:${css(TYPE_COL[ty.label])}"></span><div><span class="who">${legName(s)}</span><b>${esc(t("types_f")[ty.label])}</b>
-        <p>${t("ftype_text", {cpd: l.values_10.CPD.toFixed(1), thx: tf.axes.x.threshold, kf: l.values_10.KF.toFixed(1), thy: tf.axes.y.threshold.toFixed(1)})}${near.length ? `<span class="near">${t("ftype_near", {items: near})}</span>` : ""}</p></div></div>`;
+        <p>${t("ftype_text", {cpd: l.values_10.CPD.toFixed(1), thx: tf.axes.x.threshold, kf: l.values_10.KF.toFixed(1), thy: tf.axes.y.threshold.toFixed(1)})}${near.length ? `<span class="near">${t("ftype_near", {items: near})}</span>` : ""}${kfImp ? `<span class="near">${t("kf_imputed")}</span>` : ""}</p></div></div>`;
     }).join("");
     $("#cards-f").innerHTML = legsHtml || `<p class="note">${t(measures ? "no_legs" : "load_prompt")}</p>`;
   }
@@ -662,7 +831,8 @@ td .flag{display:inline-block;font-size:10.5px;color:var(--crit);background:var(
     $("#preds").innerHTML = legs.map(s => {
       const p = result.legs[s].prediction;
       if (!p) return `<div><div class="label">${legName(s)}</div><div class="big">—</div><div class="na">${t("pred_missing")}</div></div>`;
-      return `<div><div class="label">${legName(s)}</div><div class="big"${s==="R"?' style="color:var(--accent)"':""}>${Math.round(p.risk*100)}<small>%</small></div><div class="ci">${t("pred_ci", {lo: pct0(p.lo), hi: pct0(p.hi)})}</div></div>`;
+      const kfImp = (result.legs[s].imputed || []).includes("KF");
+      return `<div><div class="label">${legName(s)}</div><div class="big"${s==="R"?' style="color:var(--accent)"':""}>${Math.round(p.risk*100)}<small>%</small></div><div class="ci">${t("pred_ci", {lo: pct0(p.lo), hi: pct0(p.hi)})}</div>${kfImp ? `<div class="na">${t("kf_imputed")}</div>` : ""}</div>`;
     }).join("") || `<p class="na">${t(measures ? "no_legs" : "load_prompt")}</p>`;
     const line = css("--line"), sub = css("--ink-3"), ink = css("--ink"), acc = css("--accent"), lane = css("--lane");
     const P = v => 4 + Math.max(0, Math.min(1, v)) * 292;

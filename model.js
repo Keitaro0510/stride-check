@@ -35,14 +35,18 @@
              near_boundary: { cadence: lo <= cad10 && cad10 <= hi } };
   }
 
+  // KF は動画からは測れないので（browser_pose_pipeline/validation/README.md）、
+  // 無いときは研究データの中央値で補う。タイプの KF のしきい値がその中央値
+  // （時速10kmでの重み付き中央値。step3_types/33_export_display_types.py）。
   function formValues10(leg, data, sp) {
     const adj = data.form_prediction.speed_adjust_per_kmh;
-    const out = {};
+    const out = {}, imputed = [];
     for (const a of ANGLES) {
       const v = num(leg[a]);
       out[a] = v === null ? null : v - adj[a] * sp.delta_kmh;
     }
-    return out;
+    if (out.KF === null) { out.KF = data.types.form.axes.y.threshold; imputed.push("KF"); }
+    return { v10: out, imputed };
   }
 
   function formType(v10, data) {
@@ -137,8 +141,8 @@
     const legs = {};
     for (const [s, leg] of Object.entries(m.legs || {})) {
       if (!leg || Object.keys(leg).length === 0) continue;
-      const v10 = formValues10(leg, data, sp);
-      legs[s] = { values_10: v10, type: formType(v10, data), prediction: formPrediction(v10, data) };
+      const { v10, imputed } = formValues10(leg, data, sp);
+      legs[s] = { values_10: v10, imputed, type: formType(v10, data), prediction: formPrediction(v10, data) };
     }
     return { speed: sp, rhythm_type: rhythmType(m, data, sp), legs, loads: loads(m, data), flags: flags(m, data) };
   }
