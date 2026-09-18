@@ -142,7 +142,7 @@
     // This is the package's browser module entry point.  Do not use
     // jsDelivr's /+esm conversion endpoint here: it does not reliably expose
     // MediaPipe's WASM-aware package entry on all browsers.
-    return import(config.assetBaseUrl);
+    return import(config.assetBaseUrl + "/vision_bundle.mjs");
   }
   async function getLandmarker() {
     if (!landmarkerPromise) landmarkerPromise = (async () => {
