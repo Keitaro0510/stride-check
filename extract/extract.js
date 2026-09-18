@@ -191,7 +191,7 @@
     if (Math.abs(video.currentTime - seconds) < .0001) return;
     const loaded = waitEvent(video, "seeked"); video.currentTime = seconds; await loaded;
   }
-  async function inferVideo(file, targetFps, progress, progressBase, progressSpan, signal) {
+  async function inferVideo(file, targetFps, progress, progressBase, progressSpan, signal, timestampOffsetMs) {
     const { video, url } = await openVideo(file);
     try {
       const landmarker = await getLandmarker();
@@ -202,7 +202,9 @@
         if (signal && signal.aborted) throw new DOMException("Analysis cancelled", "AbortError");
         const seconds = Math.min(duration - .001, i / targetFps);
         await seek(video, seconds);
-        const result = landmarker.detectForVideo(video, Math.round(seconds * 1000));
+        // MediaPipe requires timestamps to increase for the lifetime of one
+        // VIDEO-mode landmarker.  Rear and side files share that instance.
+        const result = landmarker.detectForVideo(video, Math.round((timestampOffsetMs || 0) + seconds * 1000));
         frames.push(result.landmarks && result.landmarks[0] ? result.landmarks[0] : null);
         if (i % 3 === 0 || i === count - 1) progress(progressBase + progressSpan * (i + 1) / count, "Estimating pose");
       }
@@ -269,8 +271,8 @@
     const notes = [];
     if (!finite(options.fps)) notes.push("Source frame rate is unavailable in browser media metadata; values were sampled at 60 Hz and timing needs validation against the original capture rate.");
     progress(.01, "Loading pose model"); await getLandmarker();
-    const side = await inferVideo(sideFile, fps, progress, .03, rearFile ? .48 : .94, options.signal);
-    const rear = rearFile ? await inferVideo(rearFile, fps, progress, .51, .43, options.signal) : { frames: [] };
+    const side = await inferVideo(sideFile, fps, progress, .03, rearFile ? .48 : .94, options.signal, 0);
+    const rear = rearFile ? await inferVideo(rearFile, fps, progress, .51, .43, options.signal, (side.duration + 1) * 1000) : { frames: [] };
     if (side.originalDuration > MAX_SECONDS || (rearFile && rear.originalDuration > MAX_SECONDS)) {
       notes.push("Only the first 20 seconds of each video were analysed; trim the recording to a steady running section.");
     }
