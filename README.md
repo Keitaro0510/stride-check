@@ -24,4 +24,9 @@ Prototype from BioHackathon 2026. It shows running-style types, a form-based inj
 - Loh et al. 2025, *Int J Sports Med*: 81 runners, 12-month prospective follow-up (CC BY-NC). Form types and injury prediction. Only summary statistics and model coefficients are included; no individual records. Non-commercial use only.
 - Fukuchi et al. 2017, *PeerJ*: 3D motion and ground reaction forces of 39 runners (CC BY 4.0). Load models and the three sample runners.
 
-The analysis code that produced these models is kept in a separate repository.
+The analysis code that produced these models, and the validation of the video analysis against motion capture, are at https://github.com/Keitaro0510/stride-check-analysis. The hackathon report is at https://github.com/biohackathon-japan/BH26-StrideCheck.
+
+## License
+- **Code** (`index.html`, `model.js`, `i18n.js`, `extract/`): MIT License, see `LICENSE`. Anyone may use, change and share it, including commercially, as long as the copyright notice is kept.
+- **Data** (`data/`): values derived from the datasets above keep those datasets' licenses. The parts derived from Loh et al. 2025 (form types, form-based prediction, form distributions) are **CC BY-NC: non-commercial use only**; the rest is CC BY 4.0. Cite the original datasets when you use them.
+- MediaPipe (loaded from its CDN at run time) is Apache 2.0.
